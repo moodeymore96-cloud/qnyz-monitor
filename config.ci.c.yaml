@@ -1,4 +1,4 @@
-# GitHub Actions 监控组 B：9/14 入住 → 9/15 离店
+# GitHub Actions 监控组 C：9/15 入住 → 9/16 离店
 # 不含密钥；Bark key 由 Actions Secret（BARK_URL）注入。
 
 base_url: "https://qnyz.shyouth.net/qnyzApi"
@@ -12,13 +12,13 @@ filters:
   apply_scope: "personal"
   districts: ["长宁区"]
   only_stations: ["汉庭优佳上海中山公园"]
-  date_from: "2026-09-14"
-  date_to: "2026-09-15"
+  date_from: "2026-09-15"
+  date_to: "2026-09-16"
   min_house_count: 0
   min_apply_number: 1
 
 notify:
   type: "bark"
-  url: ""          # 由环境变量 QNYZ_NOTIFY_URL 注入
+  url: ""
 
 log_file: ""

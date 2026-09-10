@@ -20,8 +20,20 @@ jobs:
       fail-fast: false        # 一组失败不影响另一组
       matrix:
         include:
-          - name: A            # 当前唯一监控组，条件见 config.ci.a.yaml
+          - name: A            # 9/13 → 9/14
             config: config.ci.a.yaml
+          - name: B            # 9/14 → 9/15
+            config: config.ci.b.yaml
+          - name: C            # 9/15 → 9/16
+            config: config.ci.c.yaml
+          - name: D            # 9/16 → 9/17
+            config: config.ci.d.yaml
+          - name: E            # 9/17 → 9/18
+            config: config.ci.e.yaml
+          - name: F            # 9/18 → 9/19
+            config: config.ci.f.yaml
+          - name: G            # 9/19 → 9/20
+            config: config.ci.g.yaml
     name: check-${{ matrix.name }}
     steps:
       - uses: actions/checkout@v4

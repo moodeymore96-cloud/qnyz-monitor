@@ -1,4 +1,4 @@
-# GitHub Actions 监控组 A：同步本地网页控制台当前筛选条件
+# GitHub Actions 监控组 A：9/13 入住 → 9/14 离店
 # 不含密钥；Bark key 由 Actions Secret（BARK_URL）注入。
 
 base_url: "https://qnyz.shyouth.net/qnyzApi"
@@ -10,10 +10,10 @@ filters:
   name: ""
   user_type: 2
   apply_scope: "personal"
-  districts: ["徐汇区", "静安区", "长宁区", "黄浦区"]
-  only_stations: ["238", "201", "241", "227"]
+  districts: ["长宁区"]
+  only_stations: ["汉庭优佳上海中山公园"]
   date_from: "2026-09-13"
-  date_to: "2026-09-20"
+  date_to: "2026-09-14"
   min_house_count: 0
   min_apply_number: 1
 

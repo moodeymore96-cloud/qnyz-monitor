@@ -230,8 +230,10 @@ def run_once(client, cfg, state, do_notify=True, persist=True, notify_gate=None)
     for s, dates in results:
         logger.info("可预约: %s", fmt_station(s, dates))
 
-    # 去重：有区间时按“该驿站能否满足此入住区间”去重；无区间时按可约日期集合去重
+    # 去重：有区间时按“该驿站能否满足此入住区间”去重；无区间时按可约日期集合去重。
+    # 先保留上轮快照，以便识别“上轮有房、本轮无房”的消失事件。
     stay_token = f"stay:{date_from}~{date_to}"
+    previous_state = {sid: dict(info) for sid, info in state.items()}
     new_hits = []
     for s, dates in results:
         sid = str(s["id"])
@@ -243,10 +245,25 @@ def run_once(client, cfg, state, do_notify=True, persist=True, notify_gate=None)
         fresh = [d for d in cur if d not in prev]
         if fresh:
             new_hits.append((s, dates, fresh))
-        state[sid] = {"name": s.get("name"), "dates": cur}
+        state[sid] = {
+            "name": s.get("name"),
+            "district": s.get("district"),
+            "dates": cur,
+        }
 
-    # 清理已无可约的驿站状态
+    # 识别并清理已无可约的驿站状态。有日期区间时，仅把同一入住区间的
+    # 旧状态视为“房源消失”，避免修改配置日期后误报旧区间已无房。
     live_ids = {str(s["id"]) for s, _ in results}
+    gone_hits = []
+    for sid, prev_info in previous_state.items():
+        if sid in live_ids:
+            continue
+        prev_dates = set(prev_info.get("dates", []))
+        if has_range and stay_token not in prev_dates:
+            continue
+        if not has_range and not prev_dates:
+            continue
+        gone_hits.append((sid, prev_info))
     for sid in list(state.keys()):
         if sid not in live_ids:
             del state[sid]
@@ -279,8 +296,28 @@ def run_once(client, cfg, state, do_notify=True, persist=True, notify_gate=None)
                     verify=cfg.get("verify_ssl", True))
     elif new_hits:
         logger.info("发现 %d 处新增（--no-notify 未推送）", len(new_hits))
-    else:
-        logger.info("无新增可预约房源")
+    if gone_hits and do_notify:
+        stay = f"{date_from}→{date_to}" if has_range else None
+        lines = []
+        for _, prev_info in gone_hits:
+            line = prev_info.get("name") or "(未知驿站)"
+            if prev_info.get("district"):
+                line += f"[{prev_info['district']}]"
+            line += " 已无可住房源"
+            if stay:
+                line += f" {stay}"
+            lines.append(line)
+        if has_range:
+            title = f"青年驿站 {len(gone_hits)} 处已无房 {date_from}→{date_to}"
+        else:
+            title = f"青年驿站 {len(gone_hits)} 处房源已消失"
+        notify_send(cfg.get("notify") or {}, title, "\n".join(lines),
+                    verify=cfg.get("verify_ssl", True))
+    elif gone_hits:
+        logger.info("发现 %d 处房源消失（--no-notify 未推送）", len(gone_hits))
+
+    if not new_hits and not gone_hits:
+        logger.info("无房源变化")
 
     if persist:
         save_state(state)

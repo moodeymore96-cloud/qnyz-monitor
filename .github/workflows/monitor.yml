@@ -17,24 +17,19 @@ jobs:
   check:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false        # 一组失败不影响另一组
+      fail-fast: false
       matrix:
         include:
-          - name: A            # 9/13 → 9/14
-            config: config.ci.a.yaml
-          - name: B            # 9/14 → 9/15
-            config: config.ci.b.yaml
-          - name: C            # 9/15 → 9/16
-            config: config.ci.c.yaml
-          - name: D            # 9/16 → 9/17
-            config: config.ci.d.yaml
-          - name: E            # 9/17 → 9/18
+          - name: STAY
+            label: 17-19 两晚连住
+            config: config.ci.stay.yaml
+          - name: N17
+            label: 17-18 单晚
             config: config.ci.e.yaml
-          - name: F            # 9/18 → 9/19
+          - name: N18
+            label: 18-19 单晚
             config: config.ci.f.yaml
-          - name: G            # 9/19 → 9/20
-            config: config.ci.g.yaml
-    name: check-${{ matrix.name }}
+    name: check-${{ matrix.label }}
     steps:
       - uses: actions/checkout@v4
 
@@ -45,7 +40,6 @@ jobs:
       - name: Install deps
         run: pip install requests PyYAML
 
-      # 每组独立的去重缓存（key 前缀含组名，互不覆盖）
       - name: Restore dedup state (${{ matrix.name }})
         uses: actions/cache@v4
         with:
@@ -54,7 +48,7 @@ jobs:
           restore-keys: |
             qnyz-state-${{ matrix.name }}-
 
-      - name: Run check (${{ matrix.name }})
+      - name: Run check (${{ matrix.label }})
         env:
           QNYZ_NOTIFY_URL: ${{ secrets.BARK_URL }}
         run: python monitor.py --once --config ${{ matrix.config }}

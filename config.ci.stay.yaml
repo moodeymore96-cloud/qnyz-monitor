@@ -1,0 +1,24 @@
+# 9/17 入住 → 9/19 离店，直接判断两晚能否连续入住。
+# 不含密钥；Bark key 由 Actions Secret（BARK_URL）注入。
+
+base_url: "https://qnyz.shyouth.net/qnyzApi"
+verify_ssl: false
+check_availability: true
+concurrency: 10
+
+filters:
+  name: ""
+  user_type: 2
+  apply_scope: "personal"
+  districts: ["长宁区"]
+  only_stations: ["汉庭优佳上海中山公园"]
+  date_from: "2026-09-17"
+  date_to: "2026-09-19"
+  min_house_count: 0
+  min_apply_number: 1
+
+notify:
+  type: "bark"
+  url: ""
+
+log_file: ""

@@ -296,7 +296,8 @@ def run_once(client, cfg, state, do_notify=True, persist=True, notify_gate=None)
                     verify=cfg.get("verify_ssl", True))
     elif new_hits:
         logger.info("发现 %d 处新增（--no-notify 未推送）", len(new_hits))
-    if gone_hits and do_notify:
+    notify_disappeared = cfg.get("notify_disappeared", True)
+    if gone_hits and do_notify and notify_disappeared:
         stay = f"{date_from}→{date_to}" if has_range else None
         lines = []
         for _, prev_info in gone_hits:
@@ -314,7 +315,10 @@ def run_once(client, cfg, state, do_notify=True, persist=True, notify_gate=None)
         notify_send(cfg.get("notify") or {}, title, "\n".join(lines),
                     verify=cfg.get("verify_ssl", True))
     elif gone_hits:
-        logger.info("发现 %d 处房源消失（--no-notify 未推送）", len(gone_hits))
+        if do_notify and not notify_disappeared:
+            logger.info("发现 %d 处房源消失（配置为不推送）", len(gone_hits))
+        else:
+            logger.info("发现 %d 处房源消失（--no-notify 未推送）", len(gone_hits))
 
     if not new_hits and not gone_hits:
         logger.info("无房源变化")

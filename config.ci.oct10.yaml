@@ -1,0 +1,26 @@
+# 2026-10-10 入住 → 2026-10-11 离店，仅监控这一晚。
+# 不含密钥；Bark 地址由 GitHub Actions Secret（BARK_URL）注入。
+
+base_url: "https://qnyz.shyouth.net/qnyzApi"
+verify_ssl: false
+check_availability: true
+concurrency: 10
+
+filters:
+  name: ""
+  user_type: 2
+  apply_scope: "personal"
+  districts: ["长宁区"]
+  only_stations: ["汉庭优佳上海中山公园"]
+  date_from: "2026-10-10"
+  date_to: "2026-10-11"
+  min_house_count: 0
+  min_apply_number: 1
+
+notify:
+  type: "bark"
+  url: ""
+
+# 本次只在出现可住房源时推送，不发送房源消失提醒。
+notify_disappeared: false
+log_file: ""

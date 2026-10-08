@@ -20,15 +20,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: STAY
-            label: 17-19 两晚连住
-            config: config.ci.stay.yaml
-          - name: N17
-            label: 17-18 单晚
-            config: config.ci.e.yaml
-          - name: N18
-            label: 18-19 单晚
-            config: config.ci.f.yaml
+          - name: OCT10
+            label: 10月10日-11日单晚
+            config: config.ci.oct10.yaml
     name: check-${{ matrix.label }}
     steps:
       - uses: actions/checkout@v4
